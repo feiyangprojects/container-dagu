@@ -1,4 +1,4 @@
-From c8ac62846911505bd8b8b5bf4855ac0206b77a02 Mon Sep 17 00:00:00 2001
+From ed394d2477b1012c87d84898a6f3d4c5011ff1db Mon Sep 17 00:00:00 2001
 From: Fei1Yang <io@feiya.ng>
 Date: Mon, 1 Jun 2026 08:53:35 +0000
 Subject: [PATCH] chore: patch license check
@@ -10,7 +10,7 @@ Subject: [PATCH] chore: patch license check
  create mode 120000 internal/license/testutil.go
 
 diff --git a/internal/license/manager.go b/internal/license/manager.go
-index 03efce51..c8af51bf 100644
+index 03efce51..2e875a16 100644
 --- a/internal/license/manager.go
 +++ b/internal/license/manager.go
 @@ -6,14 +6,10 @@ package license
@@ -67,7 +67,7 @@ index 03efce51..c8af51bf 100644
 -		m.logger.Warn("License discovery failed", slog.String("error", err.Error()))
 -		return nil // graceful degradation
 -	}
-+	result, _ := Discover("", "dagu-key", nil)
++	result, _ := Discover(m.cfg.LicenseDir, "", m.store)
  
 -	m.source = result.Source
 -
@@ -111,7 +111,7 @@ index 03efce51..c8af51bf 100644
 -
 -	m.state.Update(claims, result.Token)
 +	claims := validClaims()
-+	m.state.Update(claims, "")
++	m.state.Update(claims, "dagu-token")
  
  	m.logger.Info("License loaded",
  		slog.String("plan", claims.Plan),
@@ -174,8 +174,8 @@ index 03efce51..c8af51bf 100644
  	ad := &ActivationData{
 -		Token:           resp.Token,
 -		HeartbeatSecret: resp.HeartbeatSecret,
-+		Token:           "",
-+		HeartbeatSecret: "",
++		Token:           "dagu-token",
++		HeartbeatSecret: "dagu-heartbeatsecret",
  		LicenseKey:      key,
  		ServerID:        serverID,
  	}
@@ -244,13 +244,13 @@ index 03efce51..c8af51bf 100644
 +	newClaims := validClaims()
  
 -	m.state.Update(newClaims, resp.Token)
-+	m.state.Update(newClaims, "")
++	m.state.Update(newClaims, "dagu-token")
  
  	// Persist the refreshed token using a copy to avoid mutating the shared ActivationData.
  	if m.store != nil {
  		updated := *ad
 -		updated.Token = resp.Token
-+		updated.Token = ""
++		updated.Token = "dagu-token"
  		if err := m.store.Save(&updated); err != nil {
  			m.logger.Warn("Failed to persist refreshed token",
  				slog.String("error", err.Error()))
